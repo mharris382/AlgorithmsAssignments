@@ -1,0 +1,18 @@
+directed unweighted
+Alpha=Hotel
+Alpha=Beta
+Beta=Charlie
+Charlie=Juliett
+Charlie=Juliett
+Delta=Foxtrot
+Delta=Golf
+Echo=Charlie
+Echo=Delta
+Foxtrot=Golf
+Golf=Juliett
+Golf=Alpha
+Hotel=Echo
+Hotel=India
+India=Beta
+India=Golf
+Juliett=Golf
