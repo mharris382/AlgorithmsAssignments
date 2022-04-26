@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using UnityEngine;
 
 namespace Assignment2
@@ -9,7 +12,7 @@ namespace Assignment2
         private readonly GraphType _type;
         private Dictionary<T, Dictionary<T, float>> _edgeLookup;
         private Dictionary<T, HashSet<T>> _incomingEdges;
-
+        public GraphType GraphType => _type;
         private int _vertexCount;
         
         
@@ -151,13 +154,51 @@ namespace Assignment2
         private void AddUndirectedEdge(T from, T to, float weight = 0)
         {
             if (!IsWeighted) weight = 0;
-            if (!HasEdge(to, from))
+            if (!HasEdge(from, to))
             {
                 _edgeLookup[from].Add(to, weight);
             }
             else //edge exists so update weight
             {
                 _edgeLookup[from][to] = weight;
+            }
+        }
+
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            var verts = new List<T>(GetVertices());
+            verts.Sort((t1, t2)=> String.Compare(t1.ToString(), t2.ToString(), StringComparison.Ordinal));
+            
+            AddHeader();
+            foreach (var from in verts)
+            {
+                if (IsWeighted) AddLinesWeighted(from);
+                else AddLinesUnweighted(from);
+            }
+            return sb.ToString();
+
+            void AddHeader()
+            {
+                sb.Append(IsDirected ? "directed" : "undirected");
+                sb.Append(' ');
+                sb.Append(IsWeighted ? "weighted" : "unweighted");
+                sb.Append('\n');
+            }
+            void AddLinesWeighted(T from)
+            {
+                foreach (var edge in GetWeightedEdges(from))
+                {
+                    sb.AppendLine($"{from.ToString()}={edge.dest.ToString()}={edge.weight:F2}");
+                }
+            }
+            void AddLinesUnweighted(T from)
+            {
+                foreach (var edge in GetEdges(from))
+                {
+                    sb.AppendLine($"{from.ToString()}={edge.ToString()}");
+                }
             }
         }
     }
@@ -168,5 +209,7 @@ namespace Assignment2
         DirectedUnweighted = 0b10,
         UndirectedUnweighted = 0b00,
         UndirectedWeighted = 0b01,
+        Directed = 0b10,
+        Weighted = 0b01
     }
 }

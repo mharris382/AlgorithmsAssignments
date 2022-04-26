@@ -4,40 +4,43 @@ using UnityEngine;
 using System.IO;
 namespace Assignment2
 {
-    public interface IGraphParserStrategy
-    {
-        
-    }
-    
     public class GraphParser
     {
         private readonly string[] _lines;
         public readonly bool IsDirected;
         public readonly bool IsWeighted;
+        
+        private Func<string, object> _parseObjectFunction;
+        Dictionary<string, object> _createdObjectCache = new Dictionary<string, object>();
+        public readonly GraphType graphType;
+
         public GraphParser(string filePath)
         {
-            if (File.Exists(filePath))
+            
+            if (!File.Exists(filePath))
             {
                 Debug.LogError($"Invalid File: {filePath}");
                 throw new FileNotFoundException(filePath);
             }
 
             var extension = Path.GetExtension(filePath);
-            if (extension != "gl")
+            if (extension != ".gl")
             {
-                Debug.LogError("can only parse .gl files");
-                throw new FormatException("can only parse .gl files");
+                Debug.LogError($"can only parse .gl files, given file was <b>{extension}</b> file");
+                throw new FormatException($"can only parse .gl files, given file was <b>{extension}</b> file");
             }
 
             var fs = File.Open(filePath, FileMode.Open);
             var reader = new StreamReader(fs);
             int cnt = 0;
             List<string> lines = new List<string>();
+           
+            
             while (!reader.EndOfStream)
             {
                 if (cnt == 0)
                 {
-                    var header = reader.ReadLine();
+                    header = reader.ReadLine();
                     if (string.IsNullOrEmpty(header))
                     {
                         throw new FormatException($"Invalid Header in file {filePath}");
@@ -47,9 +50,11 @@ namespace Assignment2
                     {
                         throw new FormatException("Header is formatted incorrectly");
                     }
-
+                    
                     IsDirected = graphType[0] == "directed";
                     IsWeighted = graphType[1] == "weighted";
+                    this.graphType = (GraphType)((IsDirected ? (int)GraphType.Directed : 0) + (IsWeighted ? (int)GraphType.Weighted : 0));
+                  //  Debug.Log("Parsed: " + this.graphType.ToString());
                 }
                 else
                 {
@@ -59,6 +64,7 @@ namespace Assignment2
             }
             
             _lines = lines.ToArray();
+            Debug.Assert(_lines.Length > 0, $"Didn't read any lines in file {filePath}!");
             reader.Close();
             fs.Close();
         }
@@ -69,7 +75,7 @@ namespace Assignment2
                 return;
             }
 
-            var header = lines[0];
+            this.header = lines[0];
             var info = header.Split(' ');
             IsDirected = info[0] == "directed";
             IsWeighted = info[1] == "weighted";
@@ -79,6 +85,9 @@ namespace Assignment2
                 _lines[i - 1] = lines[i];
             }
         }
+
+        public string header { get; set; }
+
         public GraphType GetGraphType()
         {
             int d = IsDirected ? 1 : 0;
@@ -88,19 +97,201 @@ namespace Assignment2
 
         public Graph<string> ParseGraph()
         {
-            var graph = new Graph<string>(GetGraphType());
+            List<(string from, string to)> unweightedEdges = new List<(string From, string to)>();
+            List<(string from, string to, float weight)> weightedEdges = new List<(string From, string to, float weight)>();
+            HashSet<string> nodesFound = new HashSet<string>();
             
-            throw new NotImplementedException();
+            var graph = new Graph<string>(GetGraphType());
+            ParseNodesAndEdges();
+            AddVerts();
+            AddEdges();
+            //Debug.Log(graph.ToString());
             return graph;
+            
+            void ParseNodesAndEdges()
+            {
+                foreach (var line in _lines)
+                {
+                    if (IsWeighted)
+                    {
+                        var ew = ParseEdgeWeighted(line);
+                        VerifyHasNode(ew.from, ew.to);
+                        weightedEdges.Add(ew);
+                    }
+                    else
+                    {
+                        var eu = ParseEdgeUnweighted(line);
+                        VerifyHasNode(eu.from, eu.to);
+                        unweightedEdges.Add(eu);
+                    }
+                }
+            }
+            void VerifyHasNode(string n1, string n2)
+            {
+                if (!nodesFound.Contains(n1)) nodesFound.Add(n1);
+                if (!nodesFound.Contains(n2)) nodesFound.Add(n2);
+            }
+            void AddVerts()
+            {
+                foreach (var vert in nodesFound)
+                {
+                    graph.AddVertex(vert);
+                }
+            }
+            void AddEdges()
+            {
+                if (IsWeighted)
+                {
+                    Debug.Assert(weightedEdges.Count != 0); 
+                    
+                    foreach (var weightedEdge in weightedEdges)
+                    {
+                        graph.AddEdge(weightedEdge.from, weightedEdge.to, weightedEdge.weight);
+                    }
+                }
+                else
+                {
+                    Debug.Assert(unweightedEdges.Count != 0);
+                    
+                    foreach (var unweightedEdge in unweightedEdges)
+                    {
+                        graph.AddEdge(unweightedEdge.from, unweightedEdge.to);
+                    }
+                }
+            }
+
+        }
+        
+   
+
+        
+        public Graph<T> ParseGraph<T>(Func<string, T> parseObjectFunction) 
+        {
+            _parseObjectFunction = (string str) => parseObjectFunction(str);
+            List<(T from, T to)> unweightedEdges = new List<(T From, T to)>();
+            List<(T from, T to, float weight)> weightedEdges = new List<(T From, T to, float weight)>();
+            HashSet<T> nodesFound = new HashSet<T>();
+            
+            var graph = new Graph<T>(GetGraphType());
+            ParseNodesAndEdges();
+            AddVerts();
+            AddEdges();
+            //Debug.Log(graph.ToString());
+            return graph;
+            
+      
+
+            void ParseNodesAndEdges()
+            {
+                foreach (var line in _lines)
+                {
+                    if (IsWeighted)
+                    {         
+                        var ew = ParseObjectEdgeWeighted(line);
+                        VerifyHasNodes(ew.from, ew.to);
+                        weightedEdges.Add(ew);
+                        
+                        (T from, T to, float weight) ParseObjectEdgeWeighted(string line)
+                        {
+                            var strParsed = ParseEdgeWeighted(line);
+                            var objFrom = GetNodeObject<T>(strParsed.from);
+                            var objTo = GetNodeObject<T>(strParsed.to);
+                            return (objFrom, objTo, strParsed.weight);
+                        }
+                    }
+                    else
+                    {
+                        var eu = ParseObjectEdgeUnweighted(line);
+                        VerifyHasNodes(eu.from, eu.to);
+                        unweightedEdges.Add(eu);
+                        
+                        (T from, T to) ParseObjectEdgeUnweighted(string line)
+                        {
+                            var strParsed = ParseEdgeUnweighted(line);
+                            var objFrom = GetNodeObject<T>(strParsed.from);
+                            var objTo = GetNodeObject<T>(strParsed.to);
+                            return (objFrom, objTo);
+                        }
+                    }
+                }
+            }
+            void VerifyHasNodes(T n1, T n2)
+            {   
+                if (!nodesFound.Contains(n1)) nodesFound.Add(n1);
+                if (!nodesFound.Contains(n2)) nodesFound.Add(n2);
+            }
+            void AddVerts()
+            {
+                foreach (var vert in nodesFound)
+                {
+                    graph.AddVertex(vert);
+                }
+            }
+            void AddEdges()
+            {
+                if (IsWeighted)
+                {
+                    Debug.Assert(weightedEdges.Count != 0); 
+                    
+                    foreach (var weightedEdge in weightedEdges)
+                    {
+                        graph.AddEdge(weightedEdge.from, weightedEdge.to, weightedEdge.weight);
+                    }
+                }
+                else
+                {
+                    Debug.Assert(unweightedEdges.Count != 0);
+                    
+                    foreach (var unweightedEdge in unweightedEdges)
+                    {
+                        graph.AddEdge(unweightedEdge.from, unweightedEdge.to);
+                    }
+                }
+            }
+        }
+        
+        
+        (string from, string to) ParseEdgeUnweighted(string line)
+        {
+            var parts = line.Split('=');
+            if (parts.Length != 2)
+                throw new FormatException($"Expected unweighted edge to have 2 parts but found {parts.Length}!\nLine: {line}");
+            var from = parts[0];
+            var to = parts[1];
+            return (from, to);
+        }
+        (string from, string to, float weight) ParseEdgeWeighted(string line)
+        {
+            var parts = line.Split('=');
+            if (parts.Length != 3)
+                throw new FormatException($"Expected weighted edge to have 3 parts but found {parts.Length}!\nLine: {line}");
+            
+            var from = parts[0];
+            var to = parts[1];
+            bool success = float.TryParse(parts[2], out float cost);
+            if (!success)
+            {
+                throw new FormatException($"unable to parse float value from {parts[2]}");
+            }
+            return (from, to, cost);
+        }
+        object GetNodeObject(string str)
+        {
+            if (_parseObjectFunction == null)
+            {
+                throw new NullReferenceException("Cannot convert node to object from string without a parse object strategy assigned!");
+            }
+
+            if (_createdObjectCache.ContainsKey(str))
+            {
+                return (_createdObjectCache[str] = _createdObjectCache[str] ?? _parseObjectFunction(str));
+            }
+            _createdObjectCache.Add(str, _parseObjectFunction(str));
+            return _createdObjectCache[str];
         }
 
-        public Graph<T> ParseGraph<T>(Func<string, T> parseObjectFunction)
-        {
-            var graph = new Graph<T>(GetGraphType());
-            
-            throw new NotImplementedException();
-            return graph;
-        }
+        T GetNodeObject<T>(string str) => (T) GetNodeObject(str);
+        
     }
 
 
@@ -214,5 +405,8 @@ namespace Assignment2
                 return graph;
             }
         }
+        
+        
+        
     }
 }
