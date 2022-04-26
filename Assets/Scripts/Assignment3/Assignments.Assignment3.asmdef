@@ -1,0 +1,17 @@
+{
+    "name": "Assignments.Assignment3",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d80e878bc6626634a8ab365eba68ed11",
+        "GUID:6265576ccd188c34391b8269739c951c"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
