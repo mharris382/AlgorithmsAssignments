@@ -13,7 +13,7 @@ namespace Assignment1
             _binaryHeap = new BinaryHeap<T>();
         }
 
-        public bool Enqueue(T value, int key)
+        public bool Enqueue(T value, float key)
         {
             if (_binaryHeap.IsAtCapacity())
             {

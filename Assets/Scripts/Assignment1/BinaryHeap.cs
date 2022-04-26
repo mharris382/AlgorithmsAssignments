@@ -8,7 +8,7 @@ namespace Assignment1
 {
     public class BinaryHeap<T>
     {
-        private (T item,int key)[] _items;
+        private (T item,float key)[] _items;
         private int _capacity;
         private int _count; //stores the number of items in the heap, not the size of the array
         private Dictionary<T, int> _indexLookup; //lookup table so the index of any given element can be found in O(1) time
@@ -28,7 +28,7 @@ namespace Assignment1
         {
             
             int curIndex = index;
-            int key = _items[curIndex].key;
+            float key = _items[curIndex].key;
             
            
             while (curIndex != 0 && key < ParentKey())
@@ -41,7 +41,7 @@ namespace Assignment1
                     curIndex = parentIndex;
                 }
             }
-            int ParentKey() => _items[GetParentIndex(curIndex)].key;
+            float ParentKey() => _items[GetParentIndex(curIndex)].key;
         }
         
         /// <summary>
@@ -54,15 +54,15 @@ namespace Assignment1
         {
             
             int n = _count;
-            int j, lKey, rKey, lIndex, rIndex;
+            int j, lIndex, rIndex;
 
             lIndex =  GetLeftChild(index);
             rIndex = GetRightChild(index);
             
             
-            int key = GetKey(index);
+            float key = GetKey(index);
             int smallestIndex = index;
-            int smallestKey = key;
+            float smallestKey = key;
             if (lIndex < _count &&  GetKey(lIndex) < smallestKey)
             {
                 smallestKey = GetKey(lIndex);
@@ -89,7 +89,7 @@ namespace Assignment1
         public void StartHeap(int maxItems)
         {
             _capacity = maxItems;
-            _items = new (T, int)[maxItems];
+            _items = new (T, float)[maxItems];
             _count = 0;
             _indexLookup = new Dictionary<T, int>();
         }
@@ -101,7 +101,7 @@ namespace Assignment1
         /// </summary>
         /// <param name="item"></param>
         /// <param name="value">ordering value</param>
-        public bool Insert(T item, int key)
+        public bool Insert(T item, float key)
         {
             if (IsAtCapacity())
             {
@@ -141,7 +141,7 @@ namespace Assignment1
         public void Delete(int index)
         {
             PrintDictionary();
-            ChangeKey(_items[index].item, int.MinValue);
+            ChangeKey(_items[index].item, float.MinValue);
             ExtractMin();
         }
 
@@ -190,7 +190,7 @@ namespace Assignment1
         /// </summary>
         /// <param name="item"></param>
         /// <param name="key"></param>
-        public void ChangeKey(T item, int key)
+        public void ChangeKey(T item, float key)
         {
            
             if (!_indexLookup.ContainsKey(item))
@@ -241,32 +241,32 @@ namespace Assignment1
             Swap(index1, index2);
         }
 
-             int GetParentIndex(int index)
-             {
-                 if (index < 0 || index > _count - 1)
-                     throw new IndexOutOfRangeException($"Must index between 0,{_count}");
-                 else if (index == 0)
-                     throw new InvalidTreeOperationException("root node has no parent");
-        
-                 return (index - 1) / 2;
-             }
-             int GetLeftChild(int index)
-             {
-                 if (index < 0 || index > _count - 1)
-                     throw new IndexOutOfRangeException($"Must index between 0,{_count}");
-                 return (2 * index) + 1;
-             }
-             int GetRightChild(int index)
-             {
-                 if (index < 0 || index > _count - 1)
-                     throw new IndexOutOfRangeException($"Must index between 0,{_count}");
-                 return (2 * index) + 2;
-             }
+         int GetParentIndex(int index)
+         {
+             if (index < 0 || index > _count - 1)
+                 throw new IndexOutOfRangeException($"Must index between 0,{_count}");
+             else if (index == 0)
+                 throw new InvalidTreeOperationException("root node has no parent");
+    
+             return (index - 1) / 2;
+         }
+         int GetLeftChild(int index)
+         {
+             if (index < 0 || index > _count - 1)
+                 throw new IndexOutOfRangeException($"Must index between 0,{_count}");
+             return (2 * index) + 1;
+         }
+         int GetRightChild(int index)
+         {
+             if (index < 0 || index > _count - 1)
+                 throw new IndexOutOfRangeException($"Must index between 0,{_count}");
+             return (2 * index) + 2;
+         }
 
-             int GetKey(int index) => _items[index].key;
-             int GetParentKey(int index) => GetKey(GetParentIndex(index));
-             int GetLeftKey(int index) => GetKey(GetLeftChild(index));
-             int GetRightKey(int index) => GetKey(GetRightChild(index));
+         float GetKey(int index) => _items[index].key;
+         float GetParentKey(int index) => GetKey(GetParentIndex(index));
+         float GetLeftKey(int index) => GetKey(GetLeftChild(index));
+         float GetRightKey(int index) => GetKey(GetRightChild(index));
              
         public override string ToString()
         {
@@ -279,7 +279,7 @@ namespace Assignment1
                 var key =_items[i].Item2;
                 sb.Append(value.ToString());
                 sb.Append(',');
-                sb.Append(key);
+                sb.Append($"{key:F2}");
                 sb.Append("], ");
             }
 

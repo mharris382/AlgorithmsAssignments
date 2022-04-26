@@ -28,11 +28,24 @@ public static class TestData
     }
 }
 
-public class PrimVertex : Vertex<string> { }
+public class PrimVertex : Vertex<string>
+{
+    public bool IsRoot => Value == "r";
+    public override string ToString()
+    {
+        return Value;
+    }
+}
 
 public class Vertex<T>
 {
     public T Value { get; set; }
     public float Cost { get; set; }
     public Vertex<T> Parent { get; set; }
+
+    public override int GetHashCode()
+    {
+        if (Value != null) return Value.GetHashCode();
+        return base.GetHashCode();
+    }
 }
