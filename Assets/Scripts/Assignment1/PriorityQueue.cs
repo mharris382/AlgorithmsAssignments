@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Assignment1
 {
     public class PriorityQueue<T>
     {
-        private readonly BinaryHeap<T> _binaryHeap;
+        protected readonly BinaryHeap<T> _binaryHeap;
 
         private int Capacity => _binaryHeap.Capacity;
         public int Count => _binaryHeap.Count;
@@ -34,11 +35,12 @@ namespace Assignment1
             return _binaryHeap.FindMin();
         }
         
-        public void Remove(T value)
+        public virtual void Remove(T value)
         {
             _binaryHeap.Delete(value);
         }
-        public T ExtractMin()
+        
+        public virtual T ExtractMin()
         {
             return _binaryHeap.ExtractMin();
         }
