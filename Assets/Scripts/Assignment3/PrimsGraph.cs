@@ -39,11 +39,12 @@ public class PrimsGraph
         }
     }
 
-    public void Solve(out Graph<PrimVertex> minimumSpanningTree)
+    public bool Solve(out Graph<PrimVertex> minimumSpanningTree)
     {
         minimumSpanningTree = _minimumSpanningTree;
         _root.Cost = 0;
         
+        return false;
     }
 
     private PrimVertex ParseStringToVertex(string str)

@@ -226,7 +226,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 558231256}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 2.88}
+  m_LocalPosition: {x: 12.05, y: 1.21, z: 2.88}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -546,13 +546,13 @@ LineRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Positions:
-  - {x: 0.8498621, y: 0.01531283, z: 0}
-  - {x: 3.590138, y: 0.06468717, z: 0}
-  - {x: 3.0269861, y: 0.2345695, z: 0}
-  - {x: 3.1205385, y: 0.038222995, z: 0}
-  - {x: 3.0334716, y: -0.12537207, z: 0}
-  - {x: 3.590138, y: 0.06468717, z: 0}
-  - {x: 3.1302125, y: 0.056400225, z: 0}
+  - {x: 11.3810425, y: 1.734401, z: 0}
+  - {x: 8.3689575, y: 4.095599, z: 0}
+  - {x: 8.698633, y: 3.60845, z: 0}
+  - {x: 8.749957, y: 3.8198025, z: 0}
+  - {x: 8.9207325, y: 3.8917732, z: 0}
+  - {x: 8.3689575, y: 4.095599, z: 0}
+  - {x: 8.730982, y: 3.8118057, z: 0}
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 0.1318416
@@ -753,10 +753,58 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1884201167}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.44, y: 0.08, z: 1.36}
+  m_LocalPosition: {x: 7.7, y: 4.62, z: 1.36}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2053644079
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2053644081}
+  - component: {fileID: 2053644080}
+  m_Layer: 0
+  m_Name: Prims Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2053644080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053644079}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c440860feae40ca908552f7ea29d980, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  filePaths:
+  - Scripts/Assignment3/TestData/Prim_000-1.gl
+  - Scripts/Assignment3/TestData/Prim_001.gl
+  - Scripts/Assignment3/TestData/Prim_002.gl
+--- !u!4 &2053644081
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2053644079}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
