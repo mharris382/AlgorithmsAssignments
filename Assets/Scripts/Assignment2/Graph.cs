@@ -14,7 +14,8 @@ namespace Assignment2
         private Dictionary<T, HashSet<T>> _incomingEdges;
         public GraphType GraphType => _type;
         private int _vertexCount;
-        
+
+        public int VertexCount => _edgeLookup.Count;
         
         public bool IsDirected => (((int) _type) & 2) != 0;
         public  bool IsWeighted => ((int)_type & 1) != 0;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Assignment1
 {
@@ -34,6 +35,11 @@ namespace Assignment1
         {
             return _binaryHeap.FindMin();
         }
+
+        public void UpdateKey(T value, float key)
+        {
+            _binaryHeap.ChangeKey(value, key);
+        }
         
         public virtual void Remove(T value)
         {
@@ -47,7 +53,19 @@ namespace Assignment1
 
         public override string ToString()
         {
-            return _binaryHeap.ToString();
+            var copy = BinaryHeap<T>.Clone(_binaryHeap);
+            StringBuilder sb = new StringBuilder();
+            while (copy.Count > 0)
+            {
+                sb.Append(copy.ExtractMin());
+                sb.Append(", ");
+            }
+            return sb.ToString();
+        }
+
+        public BinaryHeap<T> GetInternalHeap()
+        {
+            return _binaryHeap;
         }
     }
 }

@@ -15,6 +15,17 @@ namespace Assignment1
         public int Capacity => _capacity;
         public int Count => _count;
 
+
+        public static BinaryHeap<T> Clone(BinaryHeap<T> original)
+        {
+            var bh = new BinaryHeap<T>();
+            bh.StartHeap(original._capacity);
+            for (int i = 0; i < original._count; i++)
+            {
+                bh.Insert(original._items[i].item, original._items[i].key);
+            }
+            return bh;
+        }
         
 
         /// <summary>
@@ -196,7 +207,7 @@ namespace Assignment1
             if (!_indexLookup.ContainsKey(item))
                 throw new NodeNotFoundException($"the item: ({item}) was not found in the heap");
             var curIndex = _indexLookup[item];
-            Debug.Log($"Changing Key of {_items[curIndex].item} from {_items[curIndex].key} to {key}");
+           // Debug.Log($"Changing Key of {_items[curIndex].item} from {_items[curIndex].key} to {key}");
             var oldKey = _items[curIndex].key;
             _items[curIndex] = (item, key);
            
@@ -211,7 +222,7 @@ namespace Assignment1
             {
                 HeapifyUp(curIndex);
             }
-            Debug.Log(ToString());
+            //Debug.Log(ToString());
         }
 
         public void PrintDictionary()
@@ -285,9 +296,55 @@ namespace Assignment1
 
             return sb.ToString();
         }
-        
-        
-        
+
+        public T Root()
+        {
+            return FindMin();
+        }
+
+        public bool GetRightChild(T item, out T child)
+        {
+            var index = _indexLookup[item];
+            try
+            {
+                var rightChild = GetRightChild(index);
+                if (rightChild < _count)
+                {
+                    child = _items[rightChild].item;
+                    return true;
+                }
+
+            }
+            catch (Exception e)
+            {
+                child = default(T);
+                return false;    
+            }
+            child = default(T);
+            return false;
+        }
+
+        public bool GetLeftChild(T item, out T child)
+        {
+            try
+            {
+                var index = _indexLookup[item];
+                var leftChild = GetLeftChild(index);
+                if (leftChild < _count)
+                {
+                    child = _items[leftChild].item;
+                    return true;
+                }
+
+            }
+            catch (Exception e)
+            {
+                child = default(T);
+                return false;
+            }
+            child = default(T);
+            return false;
+        }
 
         public bool IsAtCapacity() => _count >= _capacity;
     }
