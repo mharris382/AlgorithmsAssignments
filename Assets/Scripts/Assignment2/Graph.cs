@@ -136,9 +136,6 @@ namespace Assignment2
             //if not weighted, don't accept weighted input values
             if (!IsWeighted) weight = 0;
             
-            //if not directed, also add the inverse edge
-            if (!IsDirected) AddUndirectedEdge(from, to, weight);
-
             //if edge doesn't exist add one
             if (!HasEdge(from, to)) 
             {
@@ -149,6 +146,11 @@ namespace Assignment2
             {
                 _edgeLookup[from][to] = weight;
             }
+            
+            //if not directed, also add the inverse edge
+            if (!IsDirected) 
+                AddUndirectedEdge(from, to, weight);
+
         }
         
         
