@@ -1,8 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Assignment2;
+using Palmmedia.ReportGenerator.Core.Parser.Analysis;
 using UnityEngine;
+using Object = System.Object;
+
+// ReSharper disable PossibleMultipleEnumeration
 
 public class TravelingSalesman : MonoBehaviour
 {
@@ -57,10 +63,102 @@ public class TravelingSalesman : MonoBehaviour
             path = path
         };
     }
+
+    public static void TSP<T>(Graph<T> graph, T startNode, TSPSolutionFound<T> solutionFound, bool debug = true) where T: class
+    {
+
+        var paths = new PathTree<T>(startNode, graph, onAllPathsExhausted: OnFinished);
+
+
+        void OnFinished(List<PathTree<T>.TreeNode> allPaths)
+        {
+            if (allPaths == null || allPaths.Count == 0)
+            {
+                Debug.LogError("Did not find any paths!");
+                return;
+            }
+            if(debug) Debug.Log($"Found <b>{allPaths.Count}</b> unique paths!");
+            Output(allPaths);
+            float lowestCost = float.MaxValue;
+            PathTree<T>.TreeNode bestPath = null;
+            foreach (var path in allPaths)
+            {
+                var cost = path.Cost;
+                cost += graph.GetEdgeWeight(path.Value, startNode);
+                if (cost < lowestCost)
+                {
+                    bestPath = path;
+                    lowestCost = cost;
+                }
+            }
+
+            LinkedList<T> solutionPath = new LinkedList<T>();
+            var next = solutionPath.AddLast(startNode);
+            var current = bestPath;
+            string p = "";
+            while (current != null)
+            {
+                p = $"<i>{current.Value}</i>\n<i>{p}</i>";
+                next = solutionPath.AddBefore(next, current.Value);
+                current = current.Parent;
+            }
+            Debug.Log($"<b>Best Cost: {lowestCost}</b>\n<b>Best Path: </b>\n{p}");
+            solutionFound.Invoke(solutionPath.ToList(), lowestCost);
+        }
+        
+        void Output( List<PathTree<T>.TreeNode> allPaths)
+        {
+            if (debug == false) return;
+            var localPath = "Scripts/Assignment5/Output.txt";
+            var fullPath = $"{Application.dataPath}/{localPath}";
+            if (File.Exists(fullPath))
+            {
+                var fs = File.Open(fullPath, FileMode.Create);
+                var writer = new StreamWriter(fs);
+                
+                for (int i = 0; i < allPaths.Count; i++)
+                {
+                    var leafNode = allPaths[i];
+                    writer.WriteLine($"{leafNode.Cost + graph.GetEdgeWeight(leafNode.Value, startNode)}\t\t{leafNode.Key},{startNode}");
+                }
+                writer.Close();
+                fs.Close();
+                Debug.Log("Finished");
+            }
+        }
+    }
+
     
-    
+
+
+    public class InvalidGraphException : Exception
+    {
+        public InvalidGraphException(string msg) : base(msg)
+        {
+        }
+    }
+
+
+
 }
 
+public delegate void TSPSolutionFound<T>(List<T> solutionPath, float solutionCost);
+
+static class EnumerableExtensions
+{
+    public static bool IsEmpty<T>(this IEnumerable<T> set)
+    {
+        try
+        {
+            var first = set.First();//throws exception if 
+            return false;
+        }
+        catch (Exception e)
+        {
+            return true;
+        }
+    } 
+}
 public struct MinimumPath<T>
 {
     public List<T> path;
