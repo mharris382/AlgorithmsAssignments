@@ -147,6 +147,7 @@ namespace Assignment2
                     foreach (var weightedEdge in weightedEdges)
                     {
                         graph.AddEdge(weightedEdge.from, weightedEdge.to, weightedEdge.weight);
+                        if (!IsDirected) graph.AddEdge(weightedEdge.to, weightedEdge.from, weightedEdge.weight);
                     }
                 }
                 else
@@ -156,6 +157,7 @@ namespace Assignment2
                     foreach (var unweightedEdge in unweightedEdges)
                     {
                         graph.AddEdge(unweightedEdge.from, unweightedEdge.to);
+                        if(!IsDirected)graph.AddEdge(unweightedEdge.to, unweightedEdge.from);
                     }
                 }
             }

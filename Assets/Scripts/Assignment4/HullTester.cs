@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class HullTester : MonoBehaviour
 {
-    
-    public LineRenderer hullVisual;
+
+    public GameObject hullPointPrefab;
     public Transform testParent;
     public int numAreas = 1;
     public int pointsPerArea = 25;
@@ -25,14 +25,70 @@ public class HullTester : MonoBehaviour
     public class TestVisualizer
     {
         public GameObject pointPrefab;
-
+        public GameObject hullPointPrefab;
+        [NonSerialized]
+        public bool ready = false;
+        private Dictionary<Vector3, GameObject> _points = new Dictionary<Vector3, GameObject>();
         public void VisualizePoints(Transform parent, Vector3[] points)
         {
+            if (_points.Count > 0) 
+                Reset();
+            
+            ready = true;
             for (int i = 0; i < points.Length; i++)
             {
                 var pos = points[i];
-                Instantiate(pointPrefab, pos, Quaternion.identity, parent);
+                if (!_points.ContainsKey(pos))
+                {
+                    _points.Add(pos, Instantiate(pointPrefab, pos, Quaternion.identity, parent));
+                    _points[pos].hideFlags = HideFlags.DontSave;
+                }
             }
+        }
+
+        public void Solve(Transform parent)
+        {
+            if (!ready)
+            {
+                Debug.LogError("Not ready to solve yet");
+                return;
+            }
+            var points = new List<Vector3>();
+            foreach (var point in _points)
+            {
+                points.Add(point.Key);
+            }
+
+            var hull = Quickhull.FindConvexHull(points.ToArray());
+            var result = hull.GetHullPoints();
+            foreach (var point in result)
+            {
+                if (Application.isEditor && !Application.isPlaying)
+                {
+                    DestroyImmediate(_points[point]);
+                }
+                else
+                {
+                    Destroy(_points[point]);
+                }
+                _points[point] = Instantiate(hullPointPrefab, point, Quaternion.identity, parent);
+                _points[point].hideFlags = HideFlags.DontSaveInEditor;
+
+            }
+            ready = false;
+        }
+ 
+        public void Reset()
+        {
+            foreach (var kvp in _points)
+            {
+                if (Application.isEditor && !Application.isPlaying)
+                    DestroyImmediate(kvp.Value);
+                else
+                    Destroy(kvp.Value);
+            }
+            _points.Clear();
+            ready = false;
         }
     }
 
@@ -48,8 +104,14 @@ public class HullTester : MonoBehaviour
             array[i] = centerPoint + offset;
             
         }
+        var rDist2 = UnityEngine.Random.Range(spreadRange.x, spreadRange.y);
+        var rAngle2 = UnityEngine.Random.Range(0, 360f);
+        var offset2 = (Quaternion.Euler(0, 0, rAngle2) * Vector3.right) * rDist2;
+        array[array.Length-1] = centerPoint + offset2;
     }
 
+    
+    
 
     [ContextMenu("Generate Test Points")]
     public void DoHullTest()
@@ -63,9 +125,9 @@ public class HullTester : MonoBehaviour
         GenPoints(points);
         
         visualizer.VisualizePoints(testParent, points);
-        var hullPoints = Quickhull.FindConvexHull(points).HullPoints;
+        //var hullPoints = Quickhull.FindConvexHull(points).HullPoints;
         
-        DrawResult();
+        //DrawResult();
         
         
         
@@ -84,15 +146,11 @@ public class HullTester : MonoBehaviour
                 direction = Quaternion.Euler(0, 0, angle) * direction;
                 origin += direction.normalized * (UnityEngine.Random.Range(radius, radius * 2));
                 testPoints[i] = origin;
+                if(origin == Vector3.zero)Debug.LogWarning("Gen");
                 HullTester.GenerateTestPoints(origin, spreadRange, startIndex, pointsPerArea, vector3s);
             }
         }
-        void DrawResult()
-        {
-            hullVisual.enabled = true;
-            hullVisual.positionCount = hullPoints.Length;
-            hullVisual.SetPositions(hullPoints);
-        }
+       
         void ResetPointVisuals()
         {
             if (testParent != null)
@@ -114,15 +172,15 @@ public class HullTester : MonoBehaviour
 
     }
 
-    private void OnDrawGizmosSelected()
+    [ContextMenu("Reset Test")]
+    public void ResetTest()
     {
-        if (testPoints != null && testPoints.Length > 0)
-        {
-            Gizmos.color = Color.red;
-            for (int i = 0; i < testPoints.Length; i++)
-            {
-                Gizmos.DrawWireSphere(testPoints[i], 0.5f);
-            }
-        }
+        visualizer.Reset();
+    }
+
+    [ContextMenu("Solve Hull")]
+    public void RunTest()
+    {
+        visualizer.Solve(testParent);
     }
 }

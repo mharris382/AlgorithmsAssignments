@@ -8,6 +8,13 @@ namespace Assignment4
     {
         private List<Vector3> points = new List<Vector3>();
 
+        public IEnumerable<Vector3> GetHullPoints()
+        {
+            foreach (var point in points)
+            {
+                yield return point;
+            }
+        }
         public event Action<Vector3> onPointAdded;
         
         public void AddPoint(Vector3 point)

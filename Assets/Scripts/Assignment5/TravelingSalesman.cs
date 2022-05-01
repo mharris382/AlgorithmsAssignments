@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Assignment2;
 using UnityEngine;
 
 public class TravelingSalesman : MonoBehaviour
@@ -11,7 +12,7 @@ public class TravelingSalesman : MonoBehaviour
     private const string Path_T6 = "Scripts/Assignment5/Test Data/t6.gl";
     private const string Path_T7 = "Scripts/Assignment5/Test Data/t7.gl";
 
-    private static string GetTestData(int id)
+    public static string GetTestData(int id)
     {
         string localPath;
         switch (id)
@@ -42,4 +43,27 @@ public class TravelingSalesman : MonoBehaviour
         return new[] {GetTestData(11),GetTestData(4),GetTestData(5), GetTestData(6),GetTestData(7)};
     }
     
+
+    public static MinimumPath<T> Solve<T>(Graph<T> graph, T startNode)
+    {
+        var path = new List<T>();
+        var cost = 0.0f;
+
+
+        return new MinimumPath<T>()
+        {
+            totalCost = cost,
+            startNode = startNode,
+            path = path
+        };
+    }
+    
+    
+}
+
+public struct MinimumPath<T>
+{
+    public List<T> path;
+    public T startNode;
+    public float totalCost;
 }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Assignment4
 {
@@ -40,10 +41,19 @@ namespace Assignment4
 
             public float DistanceTo(Vector2 p)
             {
+                if (Math.Abs(P0.x - P1.x) < Mathf.Epsilon)//check if p0 and p1 have approximately same x value, therefore m == NaN
+                {
+                    return Mathf.Abs(p.x - P0.x);//since the line is perp to the x axis the shortest distance is equal to x
+                }
+                else if (Math.Abs(P0.y - P1.y) < Mathf.Epsilon)
+                {
+                    return Mathf.Abs(p.y - P0.y);
+                }
+                
                 float m = LineUtil.GetSlope(LineDirection);
                 float b = LineUtil.GetXIntercept(LineDirection, P0);
-                var distance = (-m * p.x) + p.y - b / Mathf.Sqrt((m * m) + 1);
-                return distance;
+                var distance = ((-m * p.x) + p.y - b) / Mathf.Sqrt((m * m) + 1);
+                return Mathf.Abs(distance);
             }
 
             public int DetermineSideOfLine(Vector2 p)
@@ -80,7 +90,7 @@ namespace Assignment4
             }
 
 
-            static Vector3[] GetArrowPoints(Vector3 from, Vector3 to, float arrowLength = 0.4f, float arrowWidth = 0.5f, float arrowOffset = 0.2f)
+            public static Vector3[] GetArrowPoints(Vector3 from, Vector3 to, float arrowLength = 0.4f, float arrowWidth = 0.5f, float arrowOffset = 0.2f)
             {
                 var pnts = new Vector3[7];
                 pnts[0] = @from;
