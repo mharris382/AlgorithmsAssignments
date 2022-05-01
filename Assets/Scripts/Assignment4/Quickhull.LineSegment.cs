@@ -23,15 +23,12 @@ namespace Assignment4
             public float GetSlope()
             {
                 if (LineDirection.x == 0) return float.PositiveInfinity;
-                return (LineDirection.y / LineDirection.x);
+                return (P1.y - P0.y) / (P1.x - P0.x);
             }
 
             public float GetXIntercept()
             {
-                var b1 = LineUtil.GetXIntercept(LineDirection, P0);
-                var b2 = LineUtil.GetXIntercept(LineDirection, P1);
-                //Debug.Assert(Math.Abs(b1 - b2) < 0.1f, $"Intercept of P0={b1:F2} != Intercept of P1={b2:F2}");
-                return LineUtil.GetXIntercept(LineDirection, P0);
+                return P0.y - (P0.x * GetSlope());
             }
 
             public bool IsPointLeftOfLine(Vector3 point)
@@ -39,7 +36,7 @@ namespace Assignment4
                 return DetermineSideOfLine(point.x, point.y) > 0;
             }
 
-            public float DistanceTo(Vector2 p)
+            public float DistanceTo(Vector2 p, bool debug =false)
             {
                 if (Math.Abs(P0.x - P1.x) < Mathf.Epsilon)//check if p0 and p1 have approximately same x value, therefore m == NaN
                 {
@@ -50,9 +47,18 @@ namespace Assignment4
                     return Mathf.Abs(p.y - P0.y);
                 }
                 
-                float m = LineUtil.GetSlope(LineDirection);
-                float b = LineUtil.GetXIntercept(LineDirection, P0);
-                var distance = ((-m * p.x) + p.y - b) / Mathf.Sqrt((m * m) + 1);
+                float m = this.GetSlope();
+                float b = this.GetXIntercept();
+                var n = (-m * p.x) + p.y - b;
+                var d = Mathf.Sqrt(m*m + 1);
+                var distance = n / d;
+                if (debug)
+                {
+                    Debug.DrawLine(P0, P1, Color.magenta, 0.25f);
+                    var n2 = Vector2.Perpendicular(LineDirection);
+                    Debug.DrawRay(P0, n2, Color.blue, 0.25f);
+                    Debug.DrawRay(p, n2*distance, Color.green, 2);
+                }
                 return Mathf.Abs(distance);
             }
 
