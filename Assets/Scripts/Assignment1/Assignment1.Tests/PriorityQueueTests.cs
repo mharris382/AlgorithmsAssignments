@@ -59,7 +59,23 @@ public class PriorityQueueTests
         Debug.Log(pq.ToString());
         Assert.AreEqual('E', pq.ExtractMin());
     }
-    
+
+    [Test]
+    public void ChangesValuesCorrectly()
+    {
+        
+        var pq = new PriorityQueue<Char>();
+        pq.InitCapacity(3);
+        Assert.IsTrue(pq.Enqueue('B', 5));
+        Debug.Log(pq.ToString());
+        Assert.IsTrue(pq.Enqueue('A', 4));
+        Debug.Log(pq.ToString());
+        Assert.IsTrue(pq.Enqueue('C', 6));
+        pq.UpdateKey('C', 2);
+        var expectedMin = 'C';
+        var actualMin = pq.ExtractMin();
+        Assert.AreEqual(expectedMin, actualMin);
+    }
     
     [Test]
     public void DeletesElementsCorrectly()
